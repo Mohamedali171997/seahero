@@ -30,6 +30,8 @@ class TurtleHeroGame extends FlameGame
 
   late TurtleComponent turtle;
   late SpawnManager spawnManager;
+  // Fake camera offset (pixels) used for parallax backgrounds and world logic
+  double worldOffsetX = 0.0;
 
   int score = 0;
   int lives = 3;
@@ -165,7 +167,9 @@ class TurtleHeroGame extends FlameGame
   void onPanStart(DragStartInfo info) {
     if (!_isManuallyPaused && !_isGameOver) {
       final y = info.raw.localPosition.dy;
+      final x = info.raw.localPosition.dx;
       turtle.moveTo(y);
+      turtle.moveToX(x);
     }
     // no return value; handler is void
   }
@@ -174,7 +178,9 @@ class TurtleHeroGame extends FlameGame
   void onPanUpdate(DragUpdateInfo info) {
     if (!_isManuallyPaused && !_isGameOver) {
       final y = info.raw.localPosition.dy;
+      final x = info.raw.localPosition.dx;
       turtle.moveTo(y);
+      turtle.moveToX(x);
     }
     // no return value; handler is void
   }
@@ -183,7 +189,9 @@ class TurtleHeroGame extends FlameGame
   void onTapDown(TapDownInfo info) {
     if (!_isManuallyPaused && !_isGameOver) {
       final y = info.raw.localPosition.dy;
+      final x = info.raw.localPosition.dx;
       turtle.moveTo(y);
+      turtle.moveToX(x);
     }
     // no-op return; Flame's mixins expect void for these callbacks
   }
