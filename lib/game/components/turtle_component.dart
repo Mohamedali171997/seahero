@@ -1,52 +1,68 @@
-import 'dart:ui';
-
+import 'dart:math';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-
 import '../turtle_hero_game.dart';
 
 class TurtleComponent extends SpriteComponent
     with HasGameRef<TurtleHeroGame>, CollisionCallbacks {
   TurtleComponent();
 
-  double _targetY = 0;
-  final double _horizontalSpeed = 150.0; // Constant speed moving right
+  double _targetY = 0; // Where the player wants to move
+  double _velocityY = 0; // For smooth damping movement
+  double _smoothFactor = 12.0; // Higher = faster smoothing
+
+  // Swimming animation
+  double _time = 0;
+  final double _tiltAmplitude = 0.06;
+  final double _tiltFrequency = 6.0;
+  final double _scaleAmplitude = 0.02;
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+
     size = Vector2(140, 110);
     anchor = Anchor.center;
-    position = Vector2(200, gameRef.size.y / 2);
+
+    position = Vector2(
+      gameRef.size.x / 2,
+      gameRef.size.y / 2,
+    );
+
     _targetY = position.y;
 
     sprite = await gameRef.loadSprite('entities/turtle.png');
 
-    add(CircleHitbox()
-      ..collisionType = CollisionType.active
-      ..radius = size.y * 0.35);
+    add(
+      CircleHitbox()
+        ..collisionType = CollisionType.active
+        ..radius = size.y * 0.35,
+    );
   }
 
+  /// Smoothly moves turtle toward target Y
   void moveTo(double y) {
-    // Clamp Y position to keep turtle on screen
+    // Clamp inside screen
     _targetY = y.clamp(size.y / 2, gameRef.size.y - size.y / 2);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    
-    // Smooth UP/DOWN movement towards target Y
-    final dy = _targetY - position.y;
-    position.y += dy * dt * 5;
-    
-    // Automatic LEFT to RIGHT movement
-    position.x += _horizontalSpeed * dt;
-    
-    // Wrap around when turtle goes off right edge
-    if (position.x > gameRef.size.x + size.x) {
-      position.x = -size.x;
-    }
+
+    // --- SMOOTH VERTICAL MOVEMENT (like Hungry Shark Evolution) ---
+    double dy = _targetY - position.y;
+    _velocityY = dy * _smoothFactor * dt; // smooth interpolation
+    position.y += _velocityY;
+
+    // --- KEEP TURTLE ALWAYS CENTERED HORIZONTALLY ---
+    position.x = gameRef.size.x / 2;
+
+    // --- SWIMMING ANIMATION (illusion of forward movement) ---
+    _time += dt;
+    angle = sin(_time * _tiltFrequency) * _tiltAmplitude;
+
+    double s = 1.0 + sin(_time * (_tiltFrequency / 1.8)) * _scaleAmplitude;
+    scale = Vector2.all(s);
   }
 }
-
