@@ -14,6 +14,7 @@ import 'components/jellyfish_component.dart';
 import 'components/trash_component.dart';
 import 'components/turtle_component.dart';
 import 'managers/spawn_manager.dart';
+import 'managers/fish_manager.dart';
 import 'overlays/game_over_overlay.dart';
 import 'overlays/hud_overlay.dart';
 import 'overlays/pause_overlay.dart';
@@ -30,6 +31,7 @@ class TurtleHeroGame extends FlameGame
 
   late TurtleComponent turtle;
   late SpawnManager spawnManager;
+  late FishManager fishManager;
   // Fake camera offset (pixels) used for parallax backgrounds and world logic
   double worldOffsetX = 0.0;
 
@@ -59,6 +61,7 @@ class TurtleHeroGame extends FlameGame
       BackgroundParallax(),
       turtle = TurtleComponent(),
       spawnManager = SpawnManager(),
+      fishManager = FishManager(spawnInterval: 2.5),
     ]);
 
     bestScore = preferencesService.bestScore;

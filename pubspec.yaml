@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   flame: ^1.17.0
   flame_audio: ^2.10.7
+  flame_svg: ^1.0.2
   shared_preferences: ^2.3.2
   google_fonts: ^6.2.1
   cupertino_icons: ^1.0.8
@@ -57,5 +58,6 @@ flutter:
     - assets/images/backgrounds/
     - assets/images/entities/
     - assets/images/ui/
+    - assets/images/fishSVG/
     - assets/audio/
     - assets/data/
