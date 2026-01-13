@@ -24,10 +24,12 @@ class TurtleHeroGame extends FlameGame
   TurtleHeroGame({
     required this.preferencesService,
     required this.audioService,
+    this.level = 1,
   });
 
   final PreferencesService preferencesService;
   final AudioService audioService;
+  final int level;
 
   late TurtleComponent turtle;
   late SpawnManager spawnManager;
@@ -57,11 +59,14 @@ class TurtleHeroGame extends FlameGame
   Future<void> onLoad() async {
     await super.onLoad();
 
+    // Level 1: 2.5s, Level 2: 1.5s (Harder)
+    final double spawnInterval = level == 1 ? 2.5 : 1.5;
+
     await addAll([
       BackgroundParallax(),
       turtle = TurtleComponent(),
       spawnManager = SpawnManager(),
-      fishManager = FishManager(spawnInterval: 2.5),
+      fishManager = FishManager(spawnInterval: spawnInterval),
     ]);
 
     bestScore = preferencesService.bestScore;

@@ -2,6 +2,8 @@ import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import '../game/ecosystem_game.dart'; // Import EcosystemGame
+import '../game/overlays/ecosystem_controls.dart'; // Import Controls
 import '../game/overlays/game_over_overlay.dart';
 import '../game/overlays/hud_overlay.dart';
 import '../game/overlays/pause_overlay.dart';
@@ -14,32 +16,63 @@ class GameplayScreen extends StatefulWidget {
     super.key,
     required this.preferencesService,
     required this.audioService,
+    this.level = 1,
   });
 
   final PreferencesService preferencesService;
   final AudioService audioService;
+  final int level;
 
   @override
   State<GameplayScreen> createState() => _GameplayScreenState();
 }
 
 class _GameplayScreenState extends State<GameplayScreen> {
-  late final TurtleHeroGame _game = TurtleHeroGame(
-    preferencesService: widget.preferencesService,
-    audioService: widget.audioService,
-  );
+  late final FlameGame _game;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.level == 2) {
+      _game = EcosystemGame(
+        preferencesService: widget.preferencesService,
+        audioService: widget.audioService,
+      );
+    } else {
+      _game = TurtleHeroGame(
+        preferencesService: widget.preferencesService,
+        audioService: widget.audioService,
+        level: widget.level,
+      );
+    }
+  }
 
   @override
   void dispose() {
-    _game.pauseEngine();
-    _game.audioService.pauseBgm();
+    if (_game is TurtleHeroGame) {
+      (_game as TurtleHeroGame).pauseEngine();
+      (_game as TurtleHeroGame).audioService.pauseBgm();
+    } 
+    // EcosystemGame handles simple dispose naturally
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.level == 2) {
+      return Scaffold(
+        body: GameWidget(
+          game: _game,
+          overlayBuilderMap: {
+            EcosystemControls.id: (context, game) => EcosystemControls(game: game as EcosystemGame),
+          },
+          initialActiveOverlays: const [EcosystemControls.id],
+        ),
+      );
+    }
+
     final gameWidget = GameWidget<TurtleHeroGame>(
-      game: _game,
+      game: _game as TurtleHeroGame,
       overlayBuilderMap: {
         HudOverlay.id: (context, game) => HudOverlay(game: game),
         PauseOverlay.id: (context, game) => PauseOverlay(game: game),
@@ -53,7 +86,6 @@ class _GameplayScreenState extends State<GameplayScreen> {
         body: Center(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // Maintain 16:9 aspect ratio on web
               final maxWidth = constraints.maxWidth;
               final maxHeight = constraints.maxHeight;
               const targetAspectRatio = 16 / 9;
@@ -83,4 +115,5 @@ class _GameplayScreenState extends State<GameplayScreen> {
     );
   }
 }
+
 

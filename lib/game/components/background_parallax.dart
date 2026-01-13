@@ -9,19 +9,30 @@ class BackgroundParallax extends ParallaxComponent {
           priority: -1,
         );
 
- @override
-Future<void> onLoad() async {
-      parallax = await game.loadParallax(
-      [
-        ParallaxImageData('backgrounds/layer1.png'),
-        ParallaxImageData('backgrounds/layer2.png'),
-        ParallaxImageData('backgrounds/layer3.png'),
-      ],
-      baseVelocity: Vector2(-20, 0), // base scroll LEFT to simulate forward movement
+  @override
+  Future<void> onLoad() async {
+    final level = (game as TurtleHeroGame).level;
+    
+    // Default layers
+    final layers = [
+      ParallaxImageData('backgrounds/layer1.png'),
+      ParallaxImageData('backgrounds/layer2.png'),
+      ParallaxImageData('backgrounds/layer3.png'),
+    ];
+
+    // Add Seaweed layers for Level 2
+    if (level == 2) {
+      layers.add(ParallaxImageData('backgrounds/seaweed.png'));
+      layers.add(ParallaxImageData('backgrounds/seaweed2.png'));
+    }
+
+    parallax = await game.loadParallax(
+      layers,
+      baseVelocity: Vector2(level == 2 ? -30 : -20, 0), // Faster base speed for level 2
       velocityMultiplierDelta: Vector2(1.5, 0),
       fill: LayerFill.height,
     );
-}
+  }
 
   double _lastWorldOffset = 0.0;
 
